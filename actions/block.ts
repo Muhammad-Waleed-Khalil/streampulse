@@ -15,6 +15,10 @@ const roomService = new RoomServiceClient(
 export const onBlock = async (id: string) => {
   const self = await getSelf();
 
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
+
   let blockedUser;
 
   try {
@@ -36,6 +40,11 @@ export const onBlock = async (id: string) => {
 
 export const onUnblock = async (id: string) => {
   const self = await getSelf();
+
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
+
   const unblockedUser = await unblockUser(id);
 
   revalidatePath(`/u/${self.username}/community`);
