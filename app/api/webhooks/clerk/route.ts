@@ -52,40 +52,23 @@ export async function POST(req: Request) {
 
   const eventType = evt.type;
 
-  if (eventType === "user.created") {
-    // Skip if username is not set
-    if (!payload.data.username) {
-      console.log("Username not set for user:", payload.data.id);
-      return new Response("Username required", { status: 400 });
-    }
-
-    await db.user.create({
-      data: {
-        externalUserId: payload.data.id,
-        username: payload.data.username,
-        imageUrl: payload.data.image_url,
-        stream: {
-          create: {
-            name: `${payload.data.username}'s stream`,
-          },
-        },
-      },
-    });
-  }
-
-  if (eventType === "user.updated") {
-    // Only update if username is set
-    if (!payload.data.username) {
-      console.log("Username not set, skipping update for user:", payload.data.id);
+  try {
+    // Ignore session events - they don't need database operations
+    if (eventType === "session.created" || eventType === "session.removed" || eventType === "session.ended") {
+      console.log(`Ignoring ${eventType} event`);
       return new Response("", { status: 200 });
     }
 
-    const currentUser = await db.user.findUnique({
-      where: { externalUserId: payload.data.id },
-    });
+    if (eventType === "user.created") {
+      console.log("Processing user.created event for user:", payload.data.id);
 
-    // If user doesn't exist and now has username, create them
-    if (!currentUser) {
+      // Skip if username is not set
+      if (!payload.data.username) {
+        console.log("Username not set for user:", payload.data.id);
+        return new Response("Username required", { status: 400 });
+      }
+
+      console.log("Creating user in database:", payload.data.username);
       await db.user.create({
         data: {
           externalUserId: payload.data.id,
@@ -98,35 +81,78 @@ export async function POST(req: Request) {
           },
         },
       });
-    } else {
-      // Update existing user
-      await db.user.update({
-        where: {
-          externalUserId: payload.data.id,
-        },
-        data: {
-          username: payload.data.username,
-          imageUrl: payload.data.image_url,
-        },
-      });
+      console.log("User created successfully:", payload.data.username);
     }
-  }
 
-  if (eventType === "user.deleted") {
-    const userToDelete = await db.user.findUnique({
-      where: { externalUserId: payload.data.id },
-    });
+    if (eventType === "user.updated") {
+      console.log("Processing user.updated event for user:", payload.data.id);
 
-    if (userToDelete) {
-      await resetIngresses(payload.data.id);
+      // Only update if username is set
+      if (!payload.data.username) {
+        console.log("Username not set, skipping update for user:", payload.data.id);
+        return new Response("", { status: 200 });
+      }
 
-      await db.user.delete({
-        where: {
-          externalUserId: payload.data.id,
-        },
+      const currentUser = await db.user.findUnique({
+        where: { externalUserId: payload.data.id },
       });
-    }
-  }
 
-  return new Response("", { status: 200 });
+      // If user doesn't exist and now has username, create them
+      if (!currentUser) {
+        console.log("User not found in DB, creating:", payload.data.username);
+        await db.user.create({
+          data: {
+            externalUserId: payload.data.id,
+            username: payload.data.username,
+            imageUrl: payload.data.image_url,
+            stream: {
+              create: {
+                name: `${payload.data.username}'s stream`,
+              },
+            },
+          },
+        });
+        console.log("User created successfully:", payload.data.username);
+      } else {
+        // Update existing user
+        console.log("Updating existing user:", payload.data.username);
+        await db.user.update({
+          where: {
+            externalUserId: payload.data.id,
+          },
+          data: {
+            username: payload.data.username,
+            imageUrl: payload.data.image_url,
+          },
+        });
+        console.log("User updated successfully:", payload.data.username);
+      }
+    }
+
+    if (eventType === "user.deleted") {
+      console.log("Processing user.deleted event for user:", payload.data.id);
+
+      const userToDelete = await db.user.findUnique({
+        where: { externalUserId: payload.data.id },
+      });
+
+      if (userToDelete) {
+        await resetIngresses(payload.data.id);
+
+        await db.user.delete({
+          where: {
+            externalUserId: payload.data.id,
+          },
+        });
+        console.log("User deleted successfully:", payload.data.id);
+      }
+    }
+
+    return new Response("", { status: 200 });
+  } catch (error) {
+    console.error("Error processing webhook:", error);
+    console.error("Event type:", eventType);
+    console.error("Payload:", JSON.stringify(payload, null, 2));
+    return new Response("Error processing webhook", { status: 500 });
+  }
 }
