@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export function ResultCard({
   data,
+  index = 0,
 }: {
   data: {
     user: User;
@@ -17,36 +18,43 @@ export function ResultCard({
     name: string;
     thumbnailUrl: string | null;
   };
+  index?: number;
 }) {
   return (
     <Link href={`/${data.user.username}`}>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        whileHover={{ y: -8, transition: { duration: 0.2 } }}
+        transition={{ duration: 0.3, delay: index * 0.05 }}
+        whileHover={{ y: -12, transition: { duration: 0.2 } }}
         className="h-full w-full space-y-4 group"
       >
-        <div className="relative rounded-xl overflow-hidden border border-[#2a3142] group-hover:border-cyan-500/50 transition-all duration-300 shadow-lg group-hover:shadow-cyan-500/20">
+        <div className="relative rounded-2xl overflow-hidden border-2 border-[#2a3142] group-hover:border-cyan-500/70 transition-all duration-300 shadow-xl group-hover:shadow-2xl group-hover:shadow-cyan-500/30">
           <Thumbnail
             src={data.thumbnailUrl}
             fallback={data.user.imageUrl}
             isLive={data.isLive}
             username={data.user.username}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 mix-blend-overlay" />
         </div>
-        <div className="flex gap-x-3">
-          <UserAvatar
-            username={data.user.username}
-            imageUrl={data.user.imageUrl}
-            isLive={data.isLive}
-          />
-          <div className="flex flex-col text-sm overflow-hidden">
-            <p className="truncate font-semibold group-hover:text-cyan-400 transition">
+        <div className="flex gap-x-3 items-center">
+          <div className="relative">
+            <UserAvatar
+              username={data.user.username}
+              imageUrl={data.user.imageUrl}
+              isLive={data.isLive}
+            />
+            {data.isLive && (
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-background animate-pulse" />
+            )}
+          </div>
+          <div className="flex flex-col text-sm overflow-hidden flex-1">
+            <p className="truncate font-bold group-hover:text-cyan-400 transition">
               {data.name}
             </p>
-            <p className="text-muted-foreground text-xs">{data.user.username}</p>
+            <p className="text-muted-foreground text-xs truncate">{data.user.username}</p>
           </div>
         </div>
       </motion.div>

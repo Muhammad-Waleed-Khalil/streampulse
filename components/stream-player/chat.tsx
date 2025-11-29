@@ -67,41 +67,47 @@ export function Chat({
   };
 
   return (
-    <div className="flex flex-col bg-background border-l border-b pt-0 h-[calc(100vh-80px)]">
-      <ChatHeader />
-      {variant === ChatVariant.CHAT && (
-        <>
-          <ChatList messages={reversedMessages} isHidden={isHidden} />
-          <ChatForm
-            onSubmit={onSubmit}
-            value={value}
-            onChange={onChange}
-            isHidden={isHidden}
-            isFollowersOnly={isChatFollowersOnly}
-            isDelayed={isChatDelayed}
-            isFollowing={isFollowing}
-          />
-        </>
-      )}
-      {variant === ChatVariant.COMMUNITY && (
-        <>
-          <ChatCommunity
-            hostName={hostName}
-            viewerName={viewerName}
-            isHidden={isHidden}
-          />
-        </>
-      )}
+    <div className="flex flex-col bg-[#1a1d2e]/80 backdrop-blur-xl border-l border-b border-[#2a3142] pt-0 h-[calc(100vh-80px)] shadow-lg">
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
+      <div className="relative z-10 flex flex-col h-full">
+        <ChatHeader />
+        {variant === ChatVariant.CHAT && (
+          <>
+            <ChatList messages={reversedMessages} isHidden={isHidden} />
+            <ChatForm
+              onSubmit={onSubmit}
+              value={value}
+              onChange={onChange}
+              isHidden={isHidden}
+              isFollowersOnly={isChatFollowersOnly}
+              isDelayed={isChatDelayed}
+              isFollowing={isFollowing}
+            />
+          </>
+        )}
+        {variant === ChatVariant.COMMUNITY && (
+          <>
+            <ChatCommunity
+              hostName={hostName}
+              viewerName={viewerName}
+              isHidden={isHidden}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }
 
 export function ChatSkeleton() {
   return (
-    <div className="flex flex-col border-l border-b pt-0 h-[calc(100vh-80px)] border-2">
-      <ChatHeaderSkeleton />
-      <ChatListSkeleton />
-      <ChatFormSkeleton />
+    <div className="flex flex-col bg-[#1a1d2e]/80 backdrop-blur-xl border-l border-b border-[#2a3142] pt-0 h-[calc(100vh-80px)] shadow-lg">
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
+      <div className="relative z-10 flex flex-col h-full">
+        <ChatHeaderSkeleton />
+        <ChatListSkeleton />
+        <ChatFormSkeleton />
+      </div>
     </div>
   );
 }
