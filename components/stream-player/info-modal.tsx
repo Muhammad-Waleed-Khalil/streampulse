@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateStream } from "@/actions/stream";
-import { UploadDropzone } from "@/lib/uploadthing";
 
 export function InfoModal({
   initialName,
@@ -31,6 +30,7 @@ export function InfoModal({
   const router = useRouter();
   const closeRef = useRef<ElementRef<"button">>(null);
   const [isPending, startTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false);
 
   const [name, setName] = useState(initialName);
   const [thumbnailUrl, setThumbnailUrl] = useState(initialThumbnailUrl);
@@ -62,6 +62,52 @@ export function InfoModal({
 
   const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
+  };
+
+  const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast.error("File must be an image");
+      return;
+    }
+
+    // Validate file size (4MB)
+    const maxSize = 4 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast.error("File size must be less than 4MB");
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const response = await fetch("/api/upload/thumbnail", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "Upload failed");
+      }
+
+      const data = await response.json();
+      setThumbnailUrl(data.url);
+      toast.success("Thumbnail uploaded successfully");
+      router.refresh();
+      closeRef?.current?.click();
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload thumbnail");
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
@@ -109,23 +155,28 @@ export function InfoModal({
                 />
               </div>
             ) : (
-              <div className="rounded-xl border outline-dashed outline-muted">
-                <UploadDropzone
-                  endpoint="thumbnailUploader"
-                  appearance={{
-                    label: {
-                      color: "#FFFFFF",
-                    },
-                    allowedContent: {
-                      color: "#FFFFFF",
-                    },
-                  }}
-                  onClientUploadComplete={(res) => {
-                    setThumbnailUrl(res?.[0]?.url);
-                    router.refresh();
-                    closeRef?.current?.click();
-                  }}
-                />
+              <div className="rounded-xl border outline-dashed outline-muted p-8">
+                <div className="flex flex-col items-center justify-center gap-4">
+                  <label
+                    htmlFor="thumbnail-upload"
+                    className="cursor-pointer flex flex-col items-center gap-2 text-center"
+                  >
+                    <div className="text-sm text-muted-foreground">
+                      {isUploading ? "Uploading..." : "Click to upload or drag and drop"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      PNG, JPG, GIF up to 4MB
+                    </div>
+                  </label>
+                  <Input
+                    id="thumbnail-upload"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onFileChange}
+                    disabled={isUploading || isPending}
+                  />
+                </div>
               </div>
             )}
           </div>
