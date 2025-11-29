@@ -62,35 +62,44 @@ export function StreamPlayer({
         token={token}
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_WS_URL}
         className={cn(
-          "grid grid-cols-1 lg:gap-y-0 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 h-full",
+          "grid grid-cols-1 lg:gap-y-0 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-6 h-full relative",
           collapsed && "lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-2"
         )}
       >
-        <div className="space-y-4 col-span-1 lg:col-span-2 xl:col-span-2 2xl:col-span-5 lg:overflow-y-auto hidden-scrollbar pb-10">
-          <Video hostName={user.username} hostIdentity={user.id} />
-          <Header
-            imageUrl={user.imageUrl}
-            hostName={user.username}
-            hostIdentity={user.id}
-            isFollowing={isFollowing}
-            name={stream.name}
-            viewerIdentity={identity}
-          />
-          <InfoCard
-            hostIdentity={user.id}
-            viewerIdentity={identity}
-            name={stream.name}
-            thumbnailUrl={stream.thumbnailUrl}
-          />
-          <AboutCard
-            hostName={user.username}
-            hostIdentity={user.id}
-            viewerIdentity={identity}
-            bio={user.bio}
-            followedByCount={user._count.followedBy}
-          />
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
+        <div className="space-y-6 col-span-1 lg:col-span-2 xl:col-span-2 2xl:col-span-5 lg:overflow-y-auto hidden-scrollbar pb-10 relative z-10">
+          <div className="rounded-2xl overflow-hidden shadow-2xl shadow-black/20 border border-[#2a3142]">
+            <Video hostName={user.username} hostIdentity={user.id} />
+          </div>
+          <div className="px-4">
+            <Header
+              imageUrl={user.imageUrl}
+              hostName={user.username}
+              hostIdentity={user.id}
+              isFollowing={isFollowing}
+              name={stream.name}
+              viewerIdentity={identity}
+            />
+          </div>
+          <div className="px-4">
+            <InfoCard
+              hostIdentity={user.id}
+              viewerIdentity={identity}
+              name={stream.name}
+              thumbnailUrl={stream.thumbnailUrl}
+            />
+          </div>
+          <div className="px-4">
+            <AboutCard
+              hostName={user.username}
+              hostIdentity={user.id}
+              viewerIdentity={identity}
+              bio={user.bio}
+              followedByCount={user._count.followedBy}
+            />
+          </div>
         </div>
-        <div className={cn("col-span-1", collapsed && "hidden")}>
+        <div className={cn("col-span-1 relative z-10", collapsed && "hidden")}>
           <Chat
             viewerName={name}
             hostName={user.username}

@@ -16,21 +16,25 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
 
   if (!isClient)
     return (
-      <aside className="fixed left-0 flex flex-col w-60 h-full bg-background border-r border-[#2a3142] z-50">
-        <ToggleSkeleton />
-        <FollowingSkeleton />
-        <RecommendedSkeleton />
+      <aside className="fixed left-0 flex flex-col w-60 h-full bg-[#1a1d2e]/80 backdrop-blur-xl border-r border-[#2a3142] z-50 shadow-lg">
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
+        <div className="relative z-10">
+          <ToggleSkeleton />
+          <FollowingSkeleton />
+          <RecommendedSkeleton />
+        </div>
       </aside>
     );
 
   return (
     <aside
       className={cn(
-        "fixed left-0 flex flex-col w-60 h-full bg-background border-r border-[#2a3142] z-50",
+        "fixed left-0 flex flex-col w-60 h-full bg-[#1a1d2e]/80 backdrop-blur-xl border-r border-[#2a3142] z-50 shadow-lg",
         collapsed && "w-[70px]"
       )}
     >
-      {children}
+      <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 via-transparent to-cyan-500/5 pointer-events-none" />
+      <div className="relative z-10 h-full">{children}</div>
     </aside>
   );
 }
