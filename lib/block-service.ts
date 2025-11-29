@@ -5,6 +5,10 @@ export const isBlockedByUser = async (id: string) => {
   try {
     const self = await getSelf();
 
+    if (!self) {
+      return false;
+    }
+
     const otherUser = await db.user.findUnique({
       where: { id },
     });
@@ -30,6 +34,10 @@ export const isBlockedByUser = async (id: string) => {
 
 export const blockUser = async (id: string) => {
   const self = await getSelf();
+
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
 
   if (self.id === id) throw new Error("Cannot block yourself");
 
@@ -66,6 +74,10 @@ export const blockUser = async (id: string) => {
 export const unblockUser = async (id: string) => {
   const self = await getSelf();
 
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
+
   if (self.id === id) throw new Error("Cannot unblock yourself");
 
   const otherUser = await db.user.findUnique({
@@ -99,6 +111,10 @@ export const unblockUser = async (id: string) => {
 
 export const getBlockedUsers = async () => {
   const self = await getSelf();
+
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
 
   const blockedUsers = await db.block.findMany({
     where: {

@@ -9,6 +9,11 @@ import { ConnectModal } from "./_components/connect-modal";
 
 export default async function KeysPage() {
   const self = await getSelf();
+
+  if (!self) {
+    throw new Error("Unauthorized");
+  }
+
   const stream = await getStreamByUserId(self.id);
 
   if (!stream) {

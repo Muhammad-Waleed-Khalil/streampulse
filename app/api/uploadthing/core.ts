@@ -1,6 +1,6 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { currentUser } from "@clerk/nextjs/server";
 
-import { getSelf } from "@/lib/auth-service";
 import { db } from "@/lib/db";
 
 const uploadthing = createUploadthing();
@@ -13,9 +13,23 @@ export const ourFileRouter = {
     },
   })
     .middleware(async () => {
-      const self = await getSelf();
+      const self = await currentUser();
 
-      return { user: self };
+      if (!self || !self.username) {
+        throw new Error("Unauthorized");
+      }
+
+      const user = await db.user.findUnique({
+        where: {
+          externalUserId: self.id,
+        },
+      });
+
+      if (!user) {
+        throw new Error("User not found");
+      }
+
+      return { user };
     })
     .onUploadComplete(async ({ file, metadata }) => {
       await db.stream.update({

@@ -6,7 +6,7 @@ export const getStreams = async () => {
 
   try {
     const self = await getSelf();
-    userId = self.id;
+    userId = self?.id || null;
   } catch {
     userId = null;
   }
