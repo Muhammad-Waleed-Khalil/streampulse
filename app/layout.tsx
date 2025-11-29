@@ -12,10 +12,13 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: {
-    template: "%s | GameHub",
-    default: "GameHub",
+    template: "%s | StreamPulse",
+    default: "StreamPulse",
   },
-  description: "Twitch Clone with Next.js, React.js, TailWindCSS & TypeScript.",
+  description: "StreamPulse - Your ultimate live streaming platform. Watch, stream, and connect with creators in real-time.",
+  icons: {
+    icon: "/StreamPulseLogo.png",
+  },
 };
 
 export const dynamic = 'force-dynamic';
@@ -32,7 +35,7 @@ export default function RootLayout({
           <ThemeProvider
             attribute="class"
             forcedTheme="dark"
-            storageKey="gamehub-theme"
+            storageKey="streampulse-theme"
           >
             <Toaster theme="light" position="bottom-center" />
             {children}

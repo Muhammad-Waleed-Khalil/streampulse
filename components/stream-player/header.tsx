@@ -54,7 +54,7 @@ export function Header({
           </div>
           <p className="text-sm font-semibold">{name}</p>
           {isLive ? (
-            <div className="font-semibold flex gap-x-1 items-center text-xs text-rose-500">
+            <div className="font-semibold flex gap-x-1 items-center text-xs text-cyan-400">
               <UserIcon className="h-4 w-4" />
               <p>
                 {participantCount}{" "}
